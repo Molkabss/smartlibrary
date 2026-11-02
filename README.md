@@ -1,6 +1,6 @@
 # SmartLibrary — Base de connaissances bibliographique
 
-Mini-projet Web Sémantique (BDBI / BDIA3) : une base de connaissances RDF/RDFS
+Mini-projet Web Sémantique (BDIA3) : une base de connaissances RDF/RDFS
 modélisant une bibliothèque (documents, auteurs, membres, emprunts), interrogée
 en SPARQL avec inférence RDFS, et exposée via une API REST Spring Boot + Apache Jena.
 
