@@ -1,4 +1,66 @@
 
+# SmartLibrary — Base de connaissances bibliographique
+
+Mini-projet Web Sémantique (BDIA3) : une base de connaissances RDF/RDFS
+modélisant une bibliothèque (documents, auteurs, membres, emprunts), interrogée
+en SPARQL avec inférence RDFS, et exposée via une API REST Spring Boot + Apache Jena.
+
+## Sommaire
+
+- [Technologies utilisées](#technologies-utilisées)
+- [Architecture du projet](#architecture-du-projet)
+- [Présentation du dataset](#présentation-du-dataset)
+- [Modèle RDFS](#modèle-rdfs)
+- [Requêtes SPARQL](#requêtes-sparql)
+- [Inférence RDFS](#inférence-rdfs)
+- [Service REST](#service-rest)
+- [Gestion des erreurs](#gestion-des-erreurs)
+- [Tests](#tests)
+- [Lancer le projet](#lancer-le-projet)
+- [Déclaration d'utilisation de l'IA générative](#déclaration-dutilisation-de-lia-générative)
+
+## Technologies utilisées
+
+| Technologie | Version | Rôle |
+|---|---|---|
+| Java | 21 (JDK 25 utilisé en pratique) | Langage de programmation |
+| Spring Boot | 4.1.2 | Framework Web et injection de dépendances |
+| Apache Jena | 5.3.0 | Manipulation RDF/RDFS, raisonneur, SPARQL |
+| Maven | — | Gestion de build et dépendances |
+| JUnit | 6.0.3 | Tests unitaires |
+| AssertJ | 3.27.7 | Assertions lisibles dans les tests |
+| Spring MockMvc | — | Tests d'intégration REST (simulation de requêtes HTTP) |
+
+## Architecture du projet
+
+smartlibrary/
+├── docs/                                     # schéma graphique, notes SPARQL
+│   ├── schema.drawio
+│   └── requetes-sparql.md
+├── src/
+│   ├── main/
+│   │   ├── java/com/smartlibrary/smartlibrary/
+│   │   │   ├── SmartlibraryApplication.java  # Classe principale Spring Boot
+│   │   │   ├── InferenceDemo.java            # Démo des 3 règles d'inférence RDFS
+│   │   │   ├── controller/
+│   │   │   │   └── LibraryController.java    # 7 endpoints REST sous /api
+│   │   │   ├── service/
+│   │   │   │   └── LibraryService.java       # Chargement Jena, inférence, requêtes SPARQL
+│   │   │   └── exception/
+│   │   │       ├── GlobalExceptionHandler.java    # Gestion centralisée des erreurs (404, 400, 500)
+│   │   │       └── ResourceNotFoundException.java # Exception métier 404
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       ├── smartlibrary-schema.ttl       # Vocabulaire RDFS (classes, propriétés)
+│   │       ├── smartlibrary-data.ttl         # Instances
+│   │       └── smartlibrary-queries.sparql   # Les 9 requêtes SPARQL
+│   └── test/
+│       └── java/com/smartlibrary/smartlibrary/
+│           ├── service/
+│           │   └── LibraryServiceTest.java       # Tests métier (requêtes, inférence, 404)
+│           └── controller/
+│               └── LibraryControllerTest.java    # Tests d'intégration REST (MockMvc)
+└── pom.xml
 ## Présentation du dataset
 
 Le dataset (`smartlibrary-data.ttl`) contient :
