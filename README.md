@@ -97,14 +97,21 @@ Toutes les erreurs retournent un format JSON unifié, construit par `GlobalExcep
 
 ## Tests
 
-Tests unitaires dans [`LibraryServiceTest`](src/test/java/com/smartlibrary/smartlibrary/service/LibraryServiceTest.java), exécutés avec le contexte Spring complet (`@SpringBootTest`). Ils couvrent notamment :
+Deux suites de tests automatisées :
+
+- [`LibraryServiceTest`](src/test/java/com/smartlibrary/smartlibrary/service/LibraryServiceTest.java) (12 tests) — tests métier : requêtes SPARQL, inférence RDFS, exceptions, agrégations, directement sur `LibraryService`.
+- [`LibraryControllerTest`](src/test/java/com/smartlibrary/smartlibrary/controller/LibraryControllerTest.java) (10 tests) — tests d'intégration REST avec `MockMvc` : un ou plusieurs tests par endpoint, vérifiant le code HTTP (200/404) et le JSON réellement renvoyé par l'API.
+
+Elles couvrent notamment :
 
 - le tri des documents par année,
-- les requêtes qui ne fonctionnent **que grâce à l'inférence RDFS** (auteur via `aPourAuteur`, genre `Jeunesse` déduit par la règle `range`),
+- les requêtes qui ne fonctionnent **que grâce à l'inférence RDFS** (auteur via `aPourAuteur`, genre `Jeunesse` déduit par la règle `range`), vérifiées à la fois côté service et côté réponse HTTP,
 - les exceptions 404 (auteur/genre inconnu),
 - les agrégations (`GROUP BY`/`HAVING`, éditeur le plus actif),
 - la négation (`FILTER NOT EXISTS` sur les exemplaires disponibles),
 - le filtrage optionnel des emprunts par membre.
+
+Soit **22 tests** au total (+ 1 test `contextLoads` généré par défaut par Spring Boot).
 
 ### Lancer les tests
 
