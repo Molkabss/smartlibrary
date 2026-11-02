@@ -1,0 +1,159 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX sl:   <http://www.smartlibrary.org/ontology#>
+PREFIX slr:  <http://www.smartlibrary.org/resource#>
+
+# ================================================================
+# REQUETE 1 - Tous les documents tries du plus recent au plus ancien
+# Niveau : simple
+# Technique : SELECT, ORDER BY
+# Interroge directement la classe Document -> retourne Livres ET Revues
+# grace a l'heritage rdfs:subClassOf (sans meme avoir besoin d'inference,
+# car on interroge le type parent directement).
+# ================================================================
+
+SELECT ?titre ?annee
+WHERE {
+    ?document a sl:Document ;
+              sl:titre ?titre ;
+              sl:anneePublication ?annee .
+}
+ORDER BY DESC(?annee)
+
+
+# ================================================================
+# REQUETE 2 - Tous les documents avec leur auteur via aPourAuteur
+# Niveau : simple, mais resultat CLE pour l'Etape 3 (inference)
+# Technique : jointure simple
+#
+# IMPORTANT : nos donnees utilisent sl:aEcritRoman (pas sl:aPourAuteur).
+# SANS inference RDFS activee, cette requete ne retournera AUCUN resultat.
+# AVEC inference activee (aEcritRoman subPropertyOf aPourAuteur), elle
+# retournera tous les livres. C'est la comparaison exigee a l'Etape 3.
+# ================================================================
+
+SELECT ?titreDocument ?nomAuteur
+WHERE {
+    ?doc sl:titre ?titreDocument ;
+         sl:aPourAuteur ?auteur .
+    ?auteur foaf:name ?nomAuteur .
+}
+ORDER BY ?titreDocument
+
+
+# ================================================================
+# REQUETE 3 - Nombre de livres ecrits par chaque auteur
+# Niveau : moyen
+# Technique : GROUP BY, COUNT
+# ================================================================
+
+SELECT ?nomAuteur (COUNT(?livre) AS ?nombreLivres)
+WHERE {
+    ?livre a sl:Livre ;
+           sl:aEcritRoman ?auteur .
+    ?auteur foaf:name ?nomAuteur .
+}
+GROUP BY ?nomAuteur
+ORDER BY DESC(?nombreLivres)
+
+
+# ================================================================
+# REQUETE 4 - Livres sans genre renseigne
+# Niveau : moyen
+# Technique : OPTIONAL + FILTER (!BOUND(...))
+# Utile pour detecter des donnees incompletes dans la base.
+# ================================================================
+
+SELECT ?titre
+WHERE {
+    ?livre a sl:Livre ;
+           sl:titre ?titre .
+    OPTIONAL { ?livre sl:aPourGenre ?genre . }
+    FILTER (!BOUND(?genre))
+}
+
+
+# ================================================================
+# REQUETE 5 - Exemplaires actuellement disponibles (jamais empruntes)
+# Niveau : difficile
+# Technique : FILTER NOT EXISTS (negation)
+# ================================================================
+
+SELECT ?codeExemplaire
+WHERE {
+    ?exemplaire a sl:Exemplaire ;
+                rdfs:label ?codeExemplaire .
+    FILTER NOT EXISTS {
+        ?emprunt sl:concerneExemplaire ?exemplaire .
+    }
+}
+
+
+# ================================================================
+# REQUETE 6 - Membres ayant emprunte plus d'un document
+# Niveau : difficile
+# Technique : GROUP BY, COUNT, HAVING
+# ================================================================
+
+SELECT ?nomMembre (COUNT(?emprunt) AS ?nombreEmprunts)
+WHERE {
+    ?emprunt a sl:Emprunt ;
+             sl:effectuePar ?membre .
+    ?membre foaf:name ?nomMembre .
+}
+GROUP BY ?nomMembre
+HAVING (COUNT(?emprunt) > 1)
+ORDER BY DESC(?nombreEmprunts)
+
+
+# ================================================================
+# REQUETE 7 - L'editeur ayant publie le plus de documents
+# Niveau : difficile
+# Technique : COUNT, ORDER BY DESC, LIMIT
+# ================================================================
+
+SELECT ?nomEditeur (COUNT(?doc) AS ?nombreDocuments)
+WHERE {
+    ?doc sl:aPourEditeur ?editeur .
+    ?editeur rdfs:label ?nomEditeur .
+}
+GROUP BY ?nomEditeur
+ORDER BY DESC(?nombreDocuments)
+LIMIT 1
+
+
+# ================================================================
+# REQUETE 8 - Auteurs ayant ecrit dans plusieurs genres differents
+# Niveau : difficile
+# Technique : COUNT(DISTINCT ...), HAVING
+# ================================================================
+
+SELECT ?nomAuteur (COUNT(DISTINCT ?genre) AS ?nombreGenres)
+WHERE {
+    ?livre sl:aEcritRoman ?auteur ;
+           sl:aPourGenre ?genre .
+    ?auteur foaf:name ?nomAuteur .
+}
+GROUP BY ?nomAuteur
+HAVING (COUNT(DISTINCT ?genre) > 1)
+
+
+# ================================================================
+# REQUETE 9 - Detail complet d'un emprunt (membre + titre du livre)
+# Niveau : difficile
+# Technique : chemin de propriete a 3 sauts (Emprunt -> Exemplaire -> Livre)
+# ================================================================
+
+SELECT ?nomMembre ?titreLivre ?dateEmprunt
+WHERE {
+    ?emprunt a sl:Emprunt ;
+             sl:effectuePar ?membre ;
+             sl:concerneExemplaire ?exemplaire ;
+             sl:dateEmprunt ?dateEmprunt .
+    ?membre foaf:name ?nomMembre .
+    ?livre sl:aPourExemplaire ?exemplaire ;
+           sl:titre ?titreLivre .
+}
+ORDER BY ?dateEmprunt

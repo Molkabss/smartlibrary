@@ -1,0 +1,119 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix sl:     <http://www.smartlibrary.org/ontology#> .
+
+# ============================================================
+# SmartLibrary - Vocabulaire RDFS
+# Projet Web Sémantique - Mini Projet
+# ============================================================
+
+# ------------------------------------------------------------
+# CLASSES
+# ------------------------------------------------------------
+
+sl:Document a rdfs:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "Classe abstraite représentant toute ressource documentaire de la bibliothèque." .
+
+sl:Livre a rdfs:Class ;
+    rdfs:subClassOf sl:Document ;
+    rdfs:label "Livre" ;
+    rdfs:comment "Un livre, type particulier de document." .
+
+sl:Revue a rdfs:Class ;
+    rdfs:subClassOf sl:Document ;
+    rdfs:label "Revue" ;
+    rdfs:comment "Une revue ou périodique, type particulier de document." .
+
+sl:Auteur a rdfs:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label "Auteur" ;
+    rdfs:comment "Une personne ayant écrit un ou plusieurs documents. Hérite de foaf:Person." .
+
+sl:Membre a rdfs:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label "Membre" ;
+    rdfs:comment "Un membre inscrit à la bibliothèque, pouvant emprunter des documents. Hérite de foaf:Person." .
+
+sl:Editeur a rdfs:Class ;
+    rdfs:label "Éditeur" ;
+    rdfs:comment "La maison d'édition ayant publié un document." .
+
+sl:Genre a rdfs:Class ;
+    rdfs:label "Genre" ;
+    rdfs:comment "La catégorie thématique d'un document (roman, science-fiction, essai...)." .
+
+sl:Exemplaire a rdfs:Class ;
+    rdfs:label "Exemplaire" ;
+    rdfs:comment "Un exemplaire physique d'un livre, identifié par un code, disponible à l'emprunt." .
+
+sl:Emprunt a rdfs:Class ;
+    rdfs:label "Emprunt" ;
+    rdfs:comment "Un événement d'emprunt reliant un membre à un exemplaire emprunté." .
+
+# ------------------------------------------------------------
+# PROPRIÉTÉS
+# ------------------------------------------------------------
+
+sl:titre a rdf:Property ;
+    rdfs:domain sl:Document ;
+    rdfs:range xsd:string ;
+    rdfs:label "titre" ;
+    rdfs:comment "Le titre d'un document." .
+
+sl:anneePublication a rdf:Property ;
+    rdfs:domain sl:Document ;
+    rdfs:range xsd:gYear ;
+    rdfs:label "année de publication" ;
+    rdfs:comment "L'année de première publication du document." .
+
+sl:aPourAuteur a rdf:Property ;
+    rdfs:domain sl:Document ;
+    rdfs:range sl:Auteur ;
+    rdfs:label "a pour auteur" ;
+    rdfs:comment "Relie un document à son ou ses auteurs." .
+
+sl:aEcritRoman a rdf:Property ;
+    rdfs:subPropertyOf sl:aPourAuteur ;
+    rdfs:domain sl:Auteur ;
+    rdfs:range sl:Livre ;
+    rdfs:label "a écrit (roman)" ;
+    rdfs:comment "Relie spécifiquement un auteur à un livre (sous-propriété plus précise de aPourAuteur)." .
+
+sl:aPourEditeur a rdf:Property ;
+    rdfs:domain sl:Document ;
+    rdfs:range sl:Editeur ;
+    rdfs:label "a pour éditeur" ;
+    rdfs:comment "Relie un document à son éditeur." .
+
+sl:aPourGenre a rdf:Property ;
+    rdfs:domain sl:Document ;
+    rdfs:range sl:Genre ;
+    rdfs:label "a pour genre" ;
+    rdfs:comment "Relie un document à sa catégorie thématique." .
+
+sl:aPourExemplaire a rdf:Property ;
+    rdfs:domain sl:Livre ;
+    rdfs:range sl:Exemplaire ;
+    rdfs:label "a pour exemplaire" ;
+    rdfs:comment "Relie un livre à l'un de ses exemplaires physiques." .
+
+sl:concerneExemplaire a rdf:Property ;
+    rdfs:domain sl:Emprunt ;
+    rdfs:range sl:Exemplaire ;
+    rdfs:label "concerne l'exemplaire" ;
+    rdfs:comment "Relie un emprunt à l'exemplaire physique emprunté." .
+
+sl:effectuePar a rdf:Property ;
+    rdfs:domain sl:Emprunt ;
+    rdfs:range sl:Membre ;
+    rdfs:label "effectué par" ;
+    rdfs:comment "Relie un emprunt au membre qui l'a effectué." .
+
+sl:dateEmprunt a rdf:Property ;
+    rdfs:domain sl:Emprunt ;
+    rdfs:range xsd:date ;
+    rdfs:label "date d'emprunt" ;
+    rdfs:comment "La date à laquelle l'emprunt a été effectué." .

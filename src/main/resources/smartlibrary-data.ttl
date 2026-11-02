@@ -1,0 +1,179 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix sl:     <http://www.smartlibrary.org/ontology#> .
+@prefix slr:    <http://www.smartlibrary.org/resource#> .
+
+# ============================================================
+# SmartLibrary - Jeu de données (instances)
+# Utilise le vocabulaire défini dans smartlibrary-schema.ttl
+# ============================================================
+
+# ------------------------------------------------------------
+# AUTEURS
+# ------------------------------------------------------------
+
+slr:auteur_saint_exupery a sl:Auteur ;
+    foaf:name "Antoine de Saint-Exupéry" .
+
+slr:auteur_victor_hugo a sl:Auteur ;
+    foaf:name "Victor Hugo" .
+
+slr:auteur_asimov a sl:Auteur ;
+    foaf:name "Isaac Asimov" .
+
+slr:auteur_camus a sl:Auteur ;
+    foaf:name "Albert Camus" .
+
+# ------------------------------------------------------------
+# ÉDITEURS
+# ------------------------------------------------------------
+
+slr:editeur_gallimard a sl:Editeur ;
+    rdfs:label "Gallimard" .
+
+slr:editeur_hachette a sl:Editeur ;
+    rdfs:label "Hachette" .
+
+slr:editeur_folio a sl:Editeur ;
+    rdfs:label "Folio" .
+
+# ------------------------------------------------------------
+# GENRES
+# ------------------------------------------------------------
+
+slr:genre_roman a sl:Genre ;
+    rdfs:label "Roman" .
+
+slr:genre_sf a sl:Genre ;
+    rdfs:label "Science-fiction" .
+
+slr:genre_philosophie a sl:Genre ;
+    rdfs:label "Philosophie" .
+
+slr:genre_jeunesse rdfs:label "Jeunesse" .
+# NOTE : contrairement aux 3 autres genres, "Jeunesse" n'a volontairement PAS
+# de "a sl:Genre" explicite ici. Il est relie au Petit Prince via
+# sl:aPourGenre, dont le rdfs:range declare est sl:Genre. Ca sert a
+# demontrer la 3eme regle d'inference (rdfs:range) dans InferenceDemo.java.
+
+# ------------------------------------------------------------
+# LIVRES (avec aEcritRoman -> auteur, qui déclenchera l'inférence vers aPourAuteur)
+# ------------------------------------------------------------
+
+slr:livre_petit_prince a sl:Livre ;
+    sl:titre "Le Petit Prince" ;
+    sl:anneePublication "1943"^^xsd:gYear ;
+    sl:aEcritRoman slr:auteur_saint_exupery ;
+    sl:aPourEditeur slr:editeur_gallimard ;
+    sl:aPourGenre slr:genre_jeunesse .
+
+slr:livre_miserables a sl:Livre ;
+    sl:titre "Les Misérables" ;
+    sl:anneePublication "1862"^^xsd:gYear ;
+    sl:aEcritRoman slr:auteur_victor_hugo ;
+    sl:aPourEditeur slr:editeur_hachette ;
+    sl:aPourGenre slr:genre_roman .
+
+slr:livre_fondation a sl:Livre ;
+    sl:titre "Fondation" ;
+    sl:anneePublication "1951"^^xsd:gYear ;
+    sl:aEcritRoman slr:auteur_asimov ;
+    sl:aPourEditeur slr:editeur_folio ;
+    sl:aPourGenre slr:genre_sf .
+
+slr:livre_etranger a sl:Livre ;
+    sl:titre "L'Étranger" ;
+    sl:anneePublication "1942"^^xsd:gYear ;
+    sl:aEcritRoman slr:auteur_camus ;
+    sl:aPourEditeur slr:editeur_gallimard ;
+    sl:aPourGenre slr:genre_philosophie .
+
+slr:livre_peste a sl:Livre ;
+    sl:titre "La Peste" ;
+    sl:anneePublication "1947"^^xsd:gYear ;
+    sl:aEcritRoman slr:auteur_camus ;
+    sl:aPourEditeur slr:editeur_gallimard ;
+    sl:aPourGenre slr:genre_roman .
+
+# ------------------------------------------------------------
+# REVUE (exemple pour tester la hiérarchie Document)
+# ------------------------------------------------------------
+
+slr:revue_sciences_2024 a sl:Revue ;
+    sl:titre "Sciences & Avenir - Numéro Spécial" ;
+    sl:anneePublication "2024"^^xsd:gYear ;
+    sl:aPourEditeur slr:editeur_hachette ;
+    sl:aPourGenre slr:genre_sf .
+
+# ------------------------------------------------------------
+# EXEMPLAIRES (plusieurs exemplaires physiques pour certains livres)
+# ------------------------------------------------------------
+
+slr:exemplaire_petit_prince_1 a sl:Exemplaire ;
+    rdfs:label "PP-001" .
+
+slr:exemplaire_petit_prince_2 a sl:Exemplaire ;
+    rdfs:label "PP-002" .
+
+slr:exemplaire_miserables_1 a sl:Exemplaire ;
+    rdfs:label "MI-001" .
+
+slr:exemplaire_fondation_1 a sl:Exemplaire ;
+    rdfs:label "FO-001" .
+
+slr:exemplaire_etranger_1 a sl:Exemplaire ;
+    rdfs:label "ET-001" .
+
+slr:exemplaire_peste_1 a sl:Exemplaire ;
+    rdfs:label "PE-001" .
+
+# Lien Livre -> Exemplaire
+slr:livre_petit_prince sl:aPourExemplaire slr:exemplaire_petit_prince_1, slr:exemplaire_petit_prince_2 .
+slr:livre_miserables sl:aPourExemplaire slr:exemplaire_miserables_1 .
+slr:livre_fondation sl:aPourExemplaire slr:exemplaire_fondation_1 .
+slr:livre_etranger sl:aPourExemplaire slr:exemplaire_etranger_1 .
+slr:livre_peste sl:aPourExemplaire slr:exemplaire_peste_1 .
+
+# ------------------------------------------------------------
+# MEMBRES
+# ------------------------------------------------------------
+
+slr:membre_molka a sl:Membre ;
+    foaf:name "Molka Ben Salah" .
+
+slr:membre_ahmed a sl:Membre ;
+    foaf:name "Ahmed Trabelsi" .
+
+slr:membre_sana a sl:Membre ;
+    foaf:name "Sana Gharbi" .
+
+# ------------------------------------------------------------
+# EMPRUNTS (certains en retard / non rendus pour des requêtes intéressantes)
+# ------------------------------------------------------------
+
+slr:emprunt_1 a sl:Emprunt ;
+    sl:concerneExemplaire slr:exemplaire_petit_prince_1 ;
+    sl:effectuePar slr:membre_molka ;
+    sl:dateEmprunt "2026-09-01"^^xsd:date .
+
+slr:emprunt_2 a sl:Emprunt ;
+    sl:concerneExemplaire slr:exemplaire_miserables_1 ;
+    sl:effectuePar slr:membre_ahmed ;
+    sl:dateEmprunt "2026-09-15"^^xsd:date .
+
+slr:emprunt_3 a sl:Emprunt ;
+    sl:concerneExemplaire slr:exemplaire_fondation_1 ;
+    sl:effectuePar slr:membre_molka ;
+    sl:dateEmprunt "2026-10-01"^^xsd:date .
+
+slr:emprunt_4 a sl:Emprunt ;
+    sl:concerneExemplaire slr:exemplaire_etranger_1 ;
+    sl:effectuePar slr:membre_sana ;
+    sl:dateEmprunt "2026-10-20"^^xsd:date .
+
+slr:emprunt_5 a sl:Emprunt ;
+    sl:concerneExemplaire slr:exemplaire_petit_prince_2 ;
+    sl:effectuePar slr:membre_ahmed ;
+    sl:dateEmprunt "2026-10-25"^^xsd:date .
